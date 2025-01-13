@@ -3,12 +3,14 @@ Description=User Info Flask Application
 After=network.target
 
 [Service]
-User=ec2-user
-Group=ec2-user
-WorkingDirectory=/path/to/user-info-app
+User=root
+Group=root
+WorkingDirectory=/root/UserInfoApp/user-info-app-backend
 ExecStart=/usr/bin/python3 app/main.py
 Restart=always
 Environment="PATH=/usr/bin"
 
 [Install]
 WantedBy=multi-user.target
+
+
