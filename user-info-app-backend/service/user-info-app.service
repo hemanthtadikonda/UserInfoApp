@@ -5,8 +5,8 @@ After=network.target
 [Service]
 User=root
 Group=root
-WorkingDirectory=/root/UserInfoApp/user-info-app-backend
-ExecStart=/usr/bin/python3 /root/UserInfoApp/user-info-app-backend/app/main.py
+WorkingDirectory=/home/ec2-user/UserInfoApp/user-info-app-backend
+ExecStart=/usr/bin/python3 app/main.py
 Restart=always
 Environment="PATH=/usr/bin"
 
