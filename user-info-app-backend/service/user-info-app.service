@@ -6,7 +6,7 @@ After=network.target
 User=root
 Group=root
 WorkingDirectory=/root/UserInfoApp/user-info-app-backend
-ExecStart=/usr/bin/python3 app/main.py
+ExecStart=/usr/bin/python3 /root/UserInfoApp/user-info-app-backend/app/main.py
 Restart=always
 Environment="PATH=/usr/bin"
 
