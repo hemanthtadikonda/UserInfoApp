@@ -19,7 +19,6 @@
        git:
           repo: https://github.com/hemanthtadikonda/UserInfoApp.git
           dest: /home/centos/UserInfoApp
-          clone: yes
 
      - name: Install required Python packages
        pip:
@@ -31,12 +30,11 @@
        copy:
           src: /home/centos/UserInfoApp/user-info-app-backend/service/user-info-app.service
           dest: /etc/systemd/system/user-info-app.service
-          owner: root
-          group: root
           mode: '0644'
 
      - name: Reload systemd daemon
-       shell: systemctl daemon-reload
+       systemd:
+          daemon_reload: yes
 
      - name: Enable and restart user-info-app service
        systemd:

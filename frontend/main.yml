@@ -1,0 +1,46 @@
+---
+- name: Deploy UserInfoApp Frontend
+  hosts: all
+  become: yes
+  tasks:
+     - name: Update system packages
+       yum:
+          name: "*"
+          state: latest
+
+     - name: Install NGINX and Git
+       yum:
+          name:
+             - nginx
+             - git
+          state: present
+
+     - name: Clone UserInfoApp repository
+       git:
+          repo: https://github.com/hemanthtadikonda/UserInfoApp.git
+          dest: /home/centos/UserInfoApp
+
+     - name: Remove existing NGINX HTML files
+       file:
+          path: /usr/share/nginx/html/*
+          state: absent
+
+     - name: Copy index.html to NGINX HTML directory
+       copy:
+          src: /home/centos/UserInfoApp/index.html
+          dest: /usr/share/nginx/html/index.html
+
+     - name: Copy NGINX app configuration file
+       copy:
+          src: /home/centos/UserInfoApp/app.conf
+          dest: /etc/nginx/conf.d/app.conf
+
+     - name: Reload systemd daemon
+       systemd:
+          daemon_reload: yes
+
+     - name: Enable and restart NGINX service
+       systemd:
+          name: nginx
+          enabled: yes
+          state: restarted
