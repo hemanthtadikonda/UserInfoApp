@@ -1,0 +1,45 @@
+---
+- name: Deploy UserInfoApp Backend
+  hosts: all
+  become: yes
+  tasks:
+     - name: Install Python 3 and pip
+       yum:
+          name:
+             - python3
+             - python3-pip
+          state: present
+
+     - name: Install Git
+       yum:
+          name: git
+          state: present
+
+     - name: Clone UserInfoApp repository
+       git:
+          repo: https://github.com/hemanthtadikonda/UserInfoApp.git
+          dest: /home/centos/UserInfoApp
+          clone: yes
+
+     - name: Install required Python packages
+       pip:
+          requirements: /home/centos/UserInfoApp/user-info-app-backend/requirements.txt
+          state: present
+          executable: pip3
+
+     - name: Copy user-info-app service file
+       copy:
+          src: /home/centos/UserInfoApp/user-info-app-backend/service/user-info-app.service
+          dest: /etc/systemd/system/user-info-app.service
+          owner: root
+          group: root
+          mode: '0644'
+
+     - name: Reload systemd daemon
+       shell: systemctl daemon-reload
+
+     - name: Enable and restart user-info-app service
+       systemd:
+          name: user-info-app
+          enabled: yes
+          state: restarted
