@@ -18,7 +18,7 @@
      - name: Clone UserInfoApp repository
        git:
           repo: https://github.com/hemanthtadikonda/UserInfoApp.git
-          dest: /home/centos/UserInfoApp
+          dest: /home/ec2-user/UserInfoApp
 
      - name: Install required Python packages
        pip:
@@ -28,7 +28,7 @@
 
      - name: Copy user-info-app service file
        copy:
-          src: /home/centos/UserInfoApp/user-info-app-backend/service/user-info-app.service
+          src: /home/ec2-user/UserInfoApp/user-info-app-backend/service/user-info-app.service
           dest: /etc/systemd/system/user-info-app.service
           mode: '0644'
 
