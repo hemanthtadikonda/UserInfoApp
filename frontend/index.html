@@ -40,6 +40,7 @@
             cursor: pointer;
             border-radius: 4px;
             font-size: 16px;
+            margin-top: 10px;
         }
         button:hover {
             background-color: #0056b3;
@@ -56,43 +57,66 @@
     <input type="text" id="name" placeholder="Enter your name">
     <input type="text" id="language" placeholder="Enter your native language">
     <button onclick="sendData()">Submit</button>
+    <button onclick="checkHealth()">Check Server Health</button>
     <div class="message" id="message"></div>
 </div>
 
 <script>
-        async function sendData() {
-            const name = document.getElementById('name').value;
-            const language = document.getElementById('language').value;
-            const messageDiv = document.getElementById('message');
+    async function sendData() {
+        const name = document.getElementById('name').value;
+        const language = document.getElementById('language').value;
+        const messageDiv = document.getElementById('message');
 
-            if (!name || !language) {
-                messageDiv.textContent = 'Please fill in both fields.';
-                messageDiv.style.color = 'red';
-                return;
-            }
-
-            try {
-                const response = await fetch('/api/greet', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ name, language }),
-                });
-
-                const data = await response.json();
-                if (response.ok) {
-                    messageDiv.textContent = data.message;
-                    messageDiv.style.color = 'green';
-                } else {
-                    messageDiv.textContent = data.error || 'Something went wrong!';
-                    messageDiv.style.color = 'red';
-                }
-            } catch (error) {
-                messageDiv.textContent = 'Error connecting to the server.';
-                messageDiv.style.color = 'red';
-            }
+        if (!name || !language) {
+            messageDiv.textContent = 'Please fill in both fields.';
+            messageDiv.style.color = 'red';
+            return;
         }
-    </script>
+
+        try {
+            const response = await fetch('/api/greet', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name, language }),
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                messageDiv.textContent = data.message;
+                messageDiv.style.color = 'green';
+            } else {
+                messageDiv.textContent = data.error || 'Something went wrong!';
+                messageDiv.style.color = 'red';
+            }
+        } catch (error) {
+            messageDiv.textContent = 'Error connecting to the server.';
+            messageDiv.style.color = 'red';
+        }
+    }
+
+    async function checkHealth() {
+        const messageDiv = document.getElementById('message');
+
+        try {
+            const response = await fetch('/health', {
+                method: 'GET',
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                messageDiv.textContent = `Server is ${data.status}`;
+                messageDiv.style.color = 'green';
+            } else {
+                messageDiv.textContent = 'Server is not healthy!';
+                messageDiv.style.color = 'red';
+            }
+        } catch (error) {
+            messageDiv.textContent = 'Error connecting to the server.';
+            messageDiv.style.color = 'red';
+        }
+    }
+</script>
 </body>
 </html>

@@ -1,31 +1,18 @@
 from flask import Flask, request, jsonify
-from db_setup import init_db
-from utils import add_user
 import logging
+from db_utils import init_db, add_user
+from tracing import setup_tracing
 from opentelemetry import trace
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
-from opentelemetry.sdk.resources import Resource
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
 # Setup logging
-logging.basicConfig(
-    filename="logs/app.log",
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 # Setup tracing
-resource = Resource(attributes={"service.name": "user-info-app"})
-tracer_provider = TracerProvider(resource=resource)
-tracer_provider.add_span_processor(BatchSpanProcessor(OTLPSpanExporter()))
-trace.set_tracer_provider(tracer_provider)
-tracer = trace.get_tracer(__name__)
+tracer = setup_tracing(service_name="user-info-app")
 
-# Flask app setup
+# Flask application
 app = Flask(__name__)
-init_db()
 
 @app.route('/api/greet', methods=['POST'])
 def greet_user():
@@ -40,7 +27,15 @@ def greet_user():
 
         add_user(name, language)
         logger.info(f"User data saved: Name={name}, Language={language}")
-        return jsonify({"message": f"Hello {name}, Your native language is {language}"})
+        return jsonify({"message": f"Hello {name}, Your native language is {language}"}), 200
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+@app.route('/health', methods=['GET'])
+def health_check():
+    """
+    Health check endpoint for monitoring.
+    """
+    return jsonify({"status": "healthy"}), 200
+
+if __name__ == "__main__":
+    init_db()
+    app.run(host="0.0.0.0", port=5000)
