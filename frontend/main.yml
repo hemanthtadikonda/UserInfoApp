@@ -32,7 +32,6 @@
        template:
           src: /home/centos/UserInfoApp/frontend/templates/app.conf
           dest: /etc/nginx/conf.d/app.conf
-       notify: Validate NGINX Configuration
 
      - name: Ensure NGINX log directory permissions
        file:
