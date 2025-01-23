@@ -31,8 +31,8 @@
           dest: /usr/share/nginx/html/index.html
 
      - name: Copy NGINX app configuration file
-       copy:
-          src: /home/centos/UserInfoApp/frontend/app.conf
+       template:
+          src: /home/centos/UserInfoApp/frontend/templates/app.conf
           dest: /etc/nginx/conf.d/app.conf
 
      - name: Reload systemd daemon

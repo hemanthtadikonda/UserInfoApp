@@ -22,22 +22,22 @@
 
      - name: Install required Python packages
        pip:
-          requirements: /home/centos/UserInfoApp/user-info-app-backend/requirements.txt
+          requirements: /home/centos/UserInfoApp/backend/requirements.txt
           state: present
           executable: pip3
 
-     - name: Copy user-info-app service file
+     - name: Copy backend service file
        copy:
-          src: /home/ec2-user/UserInfoApp/user-info-app-backend/service/user-info-app.service
-          dest: /etc/systemd/system/user-info-app.service
+          src: /home/ec2-user/UserInfoApp/backend/service/backend.service
+          dest: /etc/systemd/system/backend.service
           mode: '0644'
 
      - name: Reload systemd daemon
        systemd:
           daemon_reload: yes
 
-     - name: Enable and restart user-info-app service
+     - name: Enable and restart backend service
        systemd:
-          name: user-info-app
+          name: backend
           enabled: yes
           state: restarted
