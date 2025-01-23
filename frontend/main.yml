@@ -21,14 +21,7 @@
           dest: /home/centos/UserInfoApp
 
      - name: Remove existing NGINX HTML files
-       file:
-          path: /usr/share/nginx/html
-          state: absent
-
-     - name: Create NGINX HTML directory
-       file:
-          path: /usr/share/nginx/html
-          state: directory
+       command: rm -rf /usr/share/nginx/html/*
 
      - name: Copy index.html to NGINX HTML directory
        copy:
@@ -41,9 +34,17 @@
           dest: /etc/nginx/conf.d/app.conf
        notify: Validate NGINX Configuration
 
-     - name: Set permissions for NGINX log directory
+     - name: Ensure NGINX log directory permissions
        file:
           path: /var/log/nginx
+          state: directory
+          owner: nginx
+          group: nginx
+          mode: '0755'
+
+     - name: Ensure NGINX run directory permissions
+       file:
+          path: /run
           state: directory
           owner: nginx
           group: nginx
