@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 import logging
-from db_utils import init_db, add_user
+from db_setup import init_db  # Correct import for `init_db`
+from utils import add_user  # Correct import for `add_user`
 from tracing import setup_tracing
 from opentelemetry import trace
 
@@ -25,9 +26,13 @@ def greet_user():
             logger.warning("Invalid input: Missing name or language")
             return jsonify({"error": "Name and language are required."}), 400
 
-        add_user(name, language)
-        logger.info(f"User data saved: Name={name}, Language={language}")
-        return jsonify({"message": f"Hello {name}, Your native language is {language}"}), 200
+        try:
+            add_user(name, language)
+            logger.info(f"User data saved: Name={name}, Language={language}")
+            return jsonify({"message": f"Hello {name}, Your native language is {language}"}), 200
+        except Exception as e:
+            logger.error(f"Error saving user data: {e}")
+            return jsonify({"error": "Internal server error."}), 500
 
 @app.route('/health', methods=['GET'])
 def health_check():
@@ -37,5 +42,8 @@ def health_check():
     return jsonify({"status": "healthy"}), 200
 
 if __name__ == "__main__":
-    init_db()
-    app.run(host="0.0.0.0", port=5000)
+    try:
+        init_db()  # Initialize the database
+        app.run(host="0.0.0.0", port=5000)
+    except Exception as e:
+        logger.error(f"Application failed to start: {e}")
