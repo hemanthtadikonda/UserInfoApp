@@ -1,19 +1,41 @@
+import os
 from flask import Flask, request, jsonify
+from db_setup import init_db
+from utils import add_user
 import logging
-from db_setup import init_db  # Correct import for `init_db`
-from utils import add_user  # Correct import for `add_user`
-from tracing import setup_tracing
 from opentelemetry import trace
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.sdk.resources import Resource
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+
+# Ensure logs directory exists
+log_dir = 'logs'
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
+
+log_file_path = os.path.join(log_dir, 'app.log')
 
 # Setup logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
+logging.basicConfig(
+    filename=log_file_path,
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 # Setup tracing
-tracer = setup_tracing(service_name="user-info-app")
+resource = Resource(attributes={"service.name": "user-info-app"})
+tracer_provider = TracerProvider(resource=resource)
+tracer_provider.add_span_processor(BatchSpanProcessor(OTLPSpanExporter()))
+trace.set_tracer_provider(tracer_provider)
+tracer = trace.get_tracer(__name__)
 
-# Flask application
+# Flask app setup
 app = Flask(__name__)
+
+# Initialize the database
+init_db()
 
 @app.route('/api/greet', methods=['POST'])
 def greet_user():
@@ -43,7 +65,6 @@ def health_check():
 
 if __name__ == "__main__":
     try:
-        init_db()  # Initialize the database
         app.run(host="0.0.0.0", port=5000)
     except Exception as e:
         logger.error(f"Application failed to start: {e}")
