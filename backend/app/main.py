@@ -1,8 +1,9 @@
 import os
 import logging
 from flask import Flask, request, jsonify
-from db_setup import init_db  # Correct import for `init_db`
-from utils import add_user  # Correct import for `add_user`
+from flask_cors import CORS
+from db_setup import init_db
+from utils import add_user
 from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
@@ -32,13 +33,14 @@ trace_logger.addHandler(trace_handler)
 
 # Setup tracing
 tracer_provider = TracerProvider()
-span_processor = BatchSpanProcessor(OTLPSpanExporter(endpoint="http://localhost:4317"))
+span_processor = BatchSpanProcessor(OTLPSpanExporter(endpoint="http://<otel-collector-host>:4317"))
 tracer_provider.add_span_processor(span_processor)
 trace.set_tracer_provider(tracer_provider)
 tracer = trace.get_tracer(__name__)
 
 # Flask application
 app = Flask(__name__)
+CORS(app)  # Enable CORS for the app
 
 @app.route('/api/greet', methods=['POST'])
 def greet_user():
