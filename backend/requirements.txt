@@ -7,4 +7,4 @@ opentelemetry-exporter-otlp==1.16.0
 opentelemetry-instrumentation==0.37b0
 opentelemetry-instrumentation-flask==0.37b0
 opentelemetry-exporter-otlp-proto-grpc==1.16.0
-requests==2.31.0
+
